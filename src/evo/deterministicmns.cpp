@@ -1014,7 +1014,6 @@ std::vector<CDeterministicMNCPtr> CDeterministicMNManager::GetAllQuorumMembers(C
     Consensus::LLMQIpType quorumIpType = GetQuorumIpType(params, pindexQuorum);
     if(Params().IsRegTestNet() && quorumIpType == 3) {
         quorumIpType = Consensus::LLMQIpType::LLMQ_IPV6;
-        return allMns.CalculateQuorum(params.size, modifier, quorumIpType);
     }
     // At the moment in case of iptype not found we return by default ipv4.
     return allMns.CalculateQuorum(params.size, modifier, quorumIpType);
