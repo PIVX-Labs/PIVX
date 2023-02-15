@@ -172,7 +172,7 @@ bool CDKGSessionHandler::InitNewQuorum(const CBlockIndex* pindexQuorum)
     }
 
     auto mns = deterministicMNManager->GetAllQuorumMembers(params.type, pindexQuorum);
-    LogPrintf("CDKGSessionHandler::%s -- trying to initialize quorum of type: %d", __func__, deterministicMNManager->GetQuorumIpType(params, pindexQuorum));
+    LogPrintf("CDKGSessionHandler::%s -- trying to initialize quorum of type: %d\n", __func__, deterministicMNManager->GetQuorumIpType(params, pindexQuorum));
     if (!curSession->Init(pindexQuorum, mns, activeMasternodeManager->GetProTx())) {
         LogPrintf("CDKGSessionHandler::%s -- quorum initialiation failed for %s\n", __func__, curSession->params.name);
         return false;

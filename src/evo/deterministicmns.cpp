@@ -1023,7 +1023,7 @@ Consensus::LLMQIpType CDeterministicMNManager::GetQuorumIpType(Consensus::LLMQPa
     uint8_t id = pindexQuorum->nHeight % (3 * params.dkgInterval) + 1;
     if (id > Consensus::LLMQIpType::LLMQ_TOR || id < Consensus::LLMQIpType::LLMQ_IPV4) {
         // Should never happen but in this case we just output ipv4
-        LogPrint(BCLog::DKG, "CDeterministicMNManager::%s -- ip type unkown, nHeight: %d, dkgInterval: %d", __func__, pindexQuorum->nHeight, params.dkgInterval);
+        LogPrint(BCLog::DKG, "CDeterministicMNManager::%s -- ip type unkown, nHeight: %d, dkgInterval: %d\n", __func__, pindexQuorum->nHeight, params.dkgInterval);
         return Consensus::LLMQIpType::LLMQ_IPV4;
     } else {
         return static_cast<Consensus::LLMQIpType>(id);
