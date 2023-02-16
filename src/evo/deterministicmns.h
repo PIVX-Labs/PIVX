@@ -8,6 +8,7 @@
 
 #include "arith_uint256.h"
 #include "bls/bls_wrapper.h"
+#include "consensus/params.h"
 #include "dbwrapper.h"
 #include "evo/evodb.h"
 #include "evo/providertx.h"
@@ -203,6 +204,7 @@ public:
     COutPoint collateralOutpoint;
     uint16_t nOperatorReward;
     CDeterministicMNStateCPtr pdmnState;
+    Consensus::LLMQIpType GetIpType() const;
 
 public:
     SERIALIZE_METHODS(CDeterministicMN, obj)
@@ -383,7 +385,7 @@ public:
      * @param modifier
      * @return
      */
-    std::vector<CDeterministicMNCPtr> CalculateQuorum(size_t maxSize, const uint256& modifier) const;
+    std::vector<CDeterministicMNCPtr> CalculateQuorum(size_t maxSize, const uint256& modifier, Consensus::LLMQIpType quorumIpType) const;
     std::vector<std::pair<arith_uint256, CDeterministicMNCPtr>> CalculateScores(const uint256& modifier) const;
 
     /**
@@ -495,7 +497,8 @@ private:
 class CDeterministicMNListDiff
 {
 public:
-    int nHeight{-1}; //memory only
+    int nHeight{-1}; // memory only
+    uint256 blockHash; // memory only
 
     std::vector<CDeterministicMNCPtr> addedMNs;
     // keys are all relating to the internalId of MNs
@@ -591,6 +594,8 @@ public:
 
     // Get the list of members for a given quorum type and index
     std::vector<CDeterministicMNCPtr> GetAllQuorumMembers(Consensus::LLMQType llmqType, const CBlockIndex* pindexQuorum);
+
+    Consensus::LLMQIpType GetQuorumIpType(Consensus::LLMQParams params, const CBlockIndex* pindexQuorum);
 
 private:
     void CleanupCache(int nHeight);

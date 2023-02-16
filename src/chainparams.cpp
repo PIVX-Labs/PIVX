@@ -457,10 +457,10 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 4-byte int at any alignment.
          */
-        pchMessageStart[0] = 0xf5;
-        pchMessageStart[1] = 0xe6;
-        pchMessageStart[2] = 0xd5;
-        pchMessageStart[3] = 0xca;
+        pchMessageStart[0] = 0xe5;
+        pchMessageStart[1] = 0xd1;
+        pchMessageStart[2] = 0xd4;
+        pchMessageStart[3] = 0xea;
         nDefaultPort = 51474;
 
         // nodes with support for servicebits filtering should be at the top
@@ -583,22 +583,21 @@ public:
                 Consensus::NetworkUpgrade::ALWAYS_ACTIVE;
         consensus.vUpgrades[Consensus::UPGRADE_TESTDUMMY].nActivationHeight =
                 Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
-        consensus.vUpgrades[Consensus::UPGRADE_POS].nActivationHeight           = 251;
-        consensus.vUpgrades[Consensus::UPGRADE_POS_V2].nActivationHeight        = 251;
+        consensus.vUpgrades[Consensus::UPGRADE_POS].nActivationHeight           = 298;
+        consensus.vUpgrades[Consensus::UPGRADE_POS_V2].nActivationHeight        = 298;
         consensus.vUpgrades[Consensus::UPGRADE_ZC].nActivationHeight            = 300;
         consensus.vUpgrades[Consensus::UPGRADE_ZC_V2].nActivationHeight         = 300;
         consensus.vUpgrades[Consensus::UPGRADE_BIP65].nActivationHeight         =
                 Consensus::NetworkUpgrade::ALWAYS_ACTIVE;
         consensus.vUpgrades[Consensus::UPGRADE_ZC_PUBLIC].nActivationHeight     = 400;
-        consensus.vUpgrades[Consensus::UPGRADE_V3_4].nActivationHeight          = 251;
+        consensus.vUpgrades[Consensus::UPGRADE_V3_4].nActivationHeight          = 298;
         consensus.vUpgrades[Consensus::UPGRADE_V4_0].nActivationHeight          =
                 Consensus::NetworkUpgrade::ALWAYS_ACTIVE;
         consensus.vUpgrades[Consensus::UPGRADE_V5_0].nActivationHeight          = 300;
         consensus.vUpgrades[Consensus::UPGRADE_V5_2].nActivationHeight          = 300;
-        consensus.vUpgrades[Consensus::UPGRADE_V5_3].nActivationHeight          = 251;
-        consensus.vUpgrades[Consensus::UPGRADE_V5_5].nActivationHeight          = 576;
-        consensus.vUpgrades[Consensus::UPGRADE_V6_0].nActivationHeight =
-                Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
+        consensus.vUpgrades[Consensus::UPGRADE_V5_3].nActivationHeight          = 298;
+        consensus.vUpgrades[Consensus::UPGRADE_V5_5].nActivationHeight          = 301;
+        consensus.vUpgrades[Consensus::UPGRADE_V6_0].nActivationHeight          = 301;
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
