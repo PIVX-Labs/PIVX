@@ -27,6 +27,19 @@ void TierTwoConnMan::setQuorumNodes(Consensus::LLMQType llmqType,
     }
 }
 
+std::set<uint256> TierTwoConnMan::getQuorumNodes(Consensus::LLMQType llmqType)
+{
+    LOCK(cs_vPendingMasternodes);
+    std::set<uint256> result;
+    for (const auto& p : masternodeQuorumNodes) {
+        if (p.first.first != llmqType) {
+            continue;
+        }
+        result.emplace(p.first.second);
+    }
+    return result;
+}
+
 bool TierTwoConnMan::hasQuorumNodes(Consensus::LLMQType llmqType, const uint256& quorumHash)
 {
     LOCK(cs_vPendingMasternodes);
@@ -38,6 +51,7 @@ void TierTwoConnMan::removeQuorumNodes(Consensus::LLMQType llmqType, const uint2
     LOCK(cs_vPendingMasternodes);
     masternodeQuorumNodes.erase(std::make_pair(llmqType, quorumHash));
 }
+
 
 void TierTwoConnMan::setMasternodeQuorumRelayMembers(Consensus::LLMQType llmqType, const uint256& quorumHash, const std::set<uint256>& proTxHashes)
 {
