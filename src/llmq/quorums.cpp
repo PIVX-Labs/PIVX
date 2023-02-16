@@ -88,7 +88,7 @@ CBLSPublicKey CQuorum::GetPubKeyShare(size_t memberIdx) const
         return CBLSPublicKey();
     }
     auto& m = members[memberIdx];
-    return blsCache.BuildPubKeyShare(m->proTxHash, quorumVvec, CBLSId(m->proTxHash)); //changed
+    return blsCache.BuildPubKeyShare(m->proTxHash, quorumVvec, CBLSId(m->proTxHash));
 }
 
 CBLSSecretKey CQuorum::GetSkShare() const
@@ -147,7 +147,6 @@ void CQuorum::StartCachePopulatorThread(std::shared_ptr<CQuorum> _this)
 
     // this thread will exit after some time
     // when then later some other thread tries to get keys, it will be much faster
-    //changed
     _this->cachePopulatorThread = std::thread(&TraceThread<std::function<void()> >,"quorum-cachepop",[_this, t]{
         for (size_t i = 0; i < _this->members.size() && !_this->stopCachePopulatorThread && !ShutdownRequested(); i++) {
             if (_this->validMembers[i]) {
@@ -195,7 +194,7 @@ void CQuorumManager::EnsureQuorumConnections(Consensus::LLMQType llmqType, const
     connmanQuorumsToDelete.erase(curDkgBlock);
 
     for (auto& quorum : lastQuorums) {
-        if (!quorum->IsMember(myProTxHash)){ //&& !GetBoolArg("-watchquorums", DEFAULT_WATCH_QUORUMS)) {
+        if (!quorum->IsMember(myProTxHash)) {
             continue;
         }
 
@@ -225,7 +224,6 @@ bool CQuorumManager::BuildQuorumFromCommitment(const CFinalCommitment& qc, const
     auto& params = Params().GetConsensus().llmqs.at((Consensus::LLMQType)qc.llmqType);
     auto quorumIndex = mapBlockIndex[qc.quorumHash];
     auto members = deterministicMNManager->GetAllQuorumMembers((Consensus::LLMQType)qc.llmqType, pindexQuorum);
-    //changed
     quorum->Init(minedBlockHash, pindexQuorum, members, qc.validMembers, qc.quorumPublicKey);
 
     bool hasValidVvec = false;
@@ -256,7 +254,6 @@ bool CQuorumManager::BuildQuorumContributions(const CFinalCommitment& fqc, std::
     std::vector<uint16_t> memberIndexes;
     std::vector<BLSVerificationVectorPtr> vvecs;
     BLSSecretKeyVector skContributions;
-    //changed
     if (!dkgManager.GetVerifiedContributions((Consensus::LLMQType)fqc.llmqType, quorum->pindexQuorum, fqc.validMembers, memberIndexes, vvecs, skContributions)) {
         return false;
     }
