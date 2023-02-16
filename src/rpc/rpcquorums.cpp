@@ -31,7 +31,7 @@ UniValue quorum_list(const JSONRPCRequest& request)
     LOCK(cs_main);
     int count = 10;
     if(request.params.size() == 1) {
-        count = ParseInt(request.params[0], "count");
+        count = std::stoi(request.params[0].get_str());
         if(count <= 0) {
             throw std::runtime_error(
             "count cannot be 0 or negative!\n");
@@ -72,9 +72,9 @@ UniValue quorum_info(const JSONRPCRequest& request)
 
     LOCK(cs_main);
 
-    Consensus::LLMQType llmqType = (Consensus::LLMQType)ParseInt(request.params[0], "llmqType");
+    Consensus::LLMQType llmqType = static_cast<Consensus::LLMQType>(std::stoi(request.params[0].get_str()));
     if (!Params().GetConsensus().llmqs.count(llmqType)) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid LLMQ type");
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid llmqType");
     }
 
     uint256 blockHash = ParseHashV(request.params[1], "quorumHash");
@@ -133,7 +133,7 @@ UniValue getminedcommitment(const JSONRPCRequest& request)
         );
     }
 
-    Consensus::LLMQType llmq_type = (Consensus::LLMQType) request.params[0].get_int();
+    Consensus::LLMQType llmq_type = static_cast<Consensus::LLMQType>(std::stoi(request.params[0].get_str()));
     if (!Params().GetConsensus().llmqs.count(llmq_type)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid llmq_type");
     }
@@ -169,7 +169,7 @@ UniValue getquorummembers(const JSONRPCRequest& request)
         );
     }
 
-    Consensus::LLMQType llmq_type = (Consensus::LLMQType) request.params[0].get_int();
+    Consensus::LLMQType llmq_type = static_cast<Consensus::LLMQType>(std::stoi(request.params[0].get_str()));
     if (!Params().GetConsensus().llmqs.count(llmq_type)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid llmq_type");
     }
