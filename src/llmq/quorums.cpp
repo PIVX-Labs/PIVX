@@ -23,6 +23,7 @@
 #include "shutdown.h"
 #include "univalue.h"
 #include "validation.h"
+#include <iostream>
 
 
 namespace llmq
@@ -165,7 +166,7 @@ CQuorumManager::CQuorumManager(CEvoDB& _evoDb, CBLSWorker& _blsWorker, CDKGSessi
 
 void CQuorumManager::UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockIndex* pindexFork, bool fInitialDownload)
 {
-    if (fInitialDownload) {
+    if (fInitialDownload || !activeMasternodeManager || !deterministicMNManager->IsDIP3Enforced(pindexNew->nHeight)) {
         return;
     }
 
