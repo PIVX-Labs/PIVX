@@ -25,16 +25,18 @@ void quorum_list_help()
 
 UniValue quorum_list(const JSONRPCRequest& request)
 {
-    if (request.fHelp || (request.params.size() != 1 && request.params.size() != 2))
+    if (request.fHelp || request.params.size() > 1)
         quorum_list_help();
 
     LOCK(cs_main);
-
     int count = 10;
-    if (request.params.size() > 1) {
-        count = ParseInt(request.params[1], "count");
+    if(request.params.size() == 1) {
+        count = ParseInt(request.params[0], "count");
+        if(count <= 0) {
+            throw std::runtime_error(
+            "count cannot be 0 or negative!\n");
+        }
     }
-
     UniValue ret(UniValue::VOBJ);
 
     for (auto& p : Params().GetConsensus().llmqs) {
@@ -65,20 +67,20 @@ void quorum_info_help()
 
 UniValue quorum_info(const JSONRPCRequest& request)
 {
-    if (request.fHelp || (request.params.size() != 3 && request.params.size() != 4))
+    if (request.fHelp || request.params.size() > 3 || request.params.size() < 2)
         quorum_info_help();
 
     LOCK(cs_main);
 
-    Consensus::LLMQType llmqType = (Consensus::LLMQType)ParseInt(request.params[1], "llmqType");
+    Consensus::LLMQType llmqType = (Consensus::LLMQType)ParseInt(request.params[0], "llmqType");
     if (!Params().GetConsensus().llmqs.count(llmqType)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid LLMQ type");
     }
 
-    uint256 blockHash = ParseHashV(request.params[2], "quorumHash");
+    uint256 blockHash = ParseHashV(request.params[1], "quorumHash");
     bool includeSkShare = false;
-    if (request.params.size() > 3) {
-        includeSkShare = ParseBool(request.params[3], "includeSkShare");
+    if (request.params.size() > 2) {
+        includeSkShare = ParseBool(request.params[2], "includeSkShare");
     }
 
     auto quorum = llmq::quorumManager->GetQuorum(llmqType, blockHash);
