@@ -6,7 +6,7 @@
 #include "quorums.h"
 #include "evo/deterministicmns.h"
 #include "evo/specialtx_validation.h"
-#include "llmq/quorums_connections.cpp"
+#include "llmq/quorums_connections.h"
 #include "logging.h"
 #include "net.h"
 #include "quorums_blockprocessor.h"
@@ -172,40 +172,11 @@ void CQuorumManager::UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockI
     LOCK(cs_main);
 
     for (auto& p : Params().GetConsensus().llmqs) {
-        EnsureQuorumConnections(p.first, pindexNew);
-    }
-}
-// ensure that we still have a connection with the last params.keepOldConnections quorums
-void CQuorumManager::EnsureQuorumConnections(Consensus::LLMQType llmqType, const CBlockIndex* pindexNew)
-{
-    AssertLockHeld(cs_main);
+        const auto& params = Params().GetConsensus().llmqs.at(p.first);
 
-    const auto& params = Params().GetConsensus().llmqs.at(llmqType);
-    auto connman = g_connman->GetTierTwoConnMan();
-    auto myProTxHash = activeMasternodeManager->GetProTx();
-    auto lastQuorums = ScanQuorums(llmqType, (size_t)params.keepOldConnections);
+        auto lastQuorums = ScanQuorums(p.first, (size_t)params.keepOldConnections);
 
-    auto connmanQuorumsToDelete = connman->getQuorumNodes(llmqType);
-
-    // don't remove connections for the currently in-progress DKG round
-    int curDkgHeight = pindexNew->nHeight - (pindexNew->nHeight % params.dkgInterval);
-    auto curDkgBlock = chainActive[curDkgHeight]->GetBlockHash();
-    connmanQuorumsToDelete.erase(curDkgBlock);
-
-    for (auto& quorum : lastQuorums) {
-        if (!quorum->IsMember(myProTxHash)) {
-            continue;
-        }
-
-        if (!connman->hasQuorumNodes(llmqType, quorum->pindexQuorum->GetBlockHash())) {
-            llmq::EnsureQuorumConnections(llmqType, quorum->pindexQuorum, myProTxHash);
-        }
-        connmanQuorumsToDelete.erase(quorum->pindexQuorum->GetBlockHash());
-    }
-
-    for (auto& qh : connmanQuorumsToDelete) {
-        LogPrintf("CQuorumManager::%s -- removing masternodes quorum connections for quorum %s:\n", __func__, qh.ToString());
-        connman->removeQuorumNodes(llmqType, qh);
+        llmq::EnsureLatestQuorumConnections(p.first, pindexNew, activeMasternodeManager->GetProTx(), lastQuorums);
     }
 }
 
