@@ -165,16 +165,16 @@ CQuorumManager::CQuorumManager(CEvoDB& _evoDb, CBLSWorker& _blsWorker, CDKGSessi
 
 void CQuorumManager::UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockIndex* pindexFork, bool fInitialDownload)
 {
-    if (fInitialDownload) {
+    if (fInitialDownload || !activeMasternodeManager || !deterministicMNManager->IsDIP3Enforced(pindexNew->nHeight)) {
         return;
     }
-
     LOCK(cs_main);
 
     for (auto& p : Params().GetConsensus().llmqs) {
         const auto& params = Params().GetConsensus().llmqs.at(p.first);
 
         auto lastQuorums = ScanQuorums(p.first, (size_t)params.keepOldConnections);
+
 
         llmq::EnsureLatestQuorumConnections(p.first, pindexNew, activeMasternodeManager->GetProTx(), lastQuorums);
     }
