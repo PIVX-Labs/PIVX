@@ -14,6 +14,7 @@
 #include "net.h"
 #include "rpc/server.h"
 #include "validation.h"
+#include <string>
 
 void quorum_list_help()
 {
@@ -80,7 +81,7 @@ UniValue quorum_info(const JSONRPCRequest& request)
     uint256 blockHash = ParseHashV(request.params[1], "quorumHash");
     bool includeSkShare = false;
     if (request.params.size() > 2) {
-        includeSkShare = ParseBool(request.params[2], "includeSkShare");
+        includeSkShare = std::stoi(request.params[2].get_str());
     }
 
     auto quorum = llmq::quorumManager->GetQuorum(llmqType, blockHash);
