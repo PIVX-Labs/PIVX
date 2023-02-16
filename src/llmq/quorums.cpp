@@ -31,7 +31,7 @@ namespace llmq
 static const std::string DB_QUORUM_SK_SHARE = "q_Qsk";
 static const std::string DB_QUORUM_QUORUM_VVEC = "q_Qqvvec";
 
-CQuorumManager* quorumManager;
+std::unique_ptr<CQuorumManager> quorumManager{nullptr};
 
 static uint256 MakeQuorumKey(const CQuorum& q)
 {
@@ -413,4 +413,4 @@ CQuorumCPtr CQuorumManager::GetNewestQuorum(Consensus::LLMQType llmqType)
     return quorums.front();
 }
 
-}
+} // namespace llmq

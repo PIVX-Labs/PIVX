@@ -111,8 +111,7 @@ private:
     bool BuildQuorumContributions(const CFinalCommitment& fqc, std::shared_ptr<CQuorum>& quorum) const;
 };
 
-extern CQuorumManager* quorumManager;
-
+extern std::unique_ptr<CQuorumManager> quorumManager;
 }
 
 #endif //DASH_QUORUMS_H
