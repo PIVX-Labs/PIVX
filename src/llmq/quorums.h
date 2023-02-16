@@ -6,13 +6,13 @@
 #ifndef DASH_QUORUMS_H
 #define DASH_QUORUMS_H
 
-#include "evo/evodb.h"
 #include "evo/deterministicmns.h"
+#include "evo/evodb.h"
 
-#include "validationinterface.h"
-#include "consensus/params.h"
-#include "bls/bls_wrapper.h"
 #include "bls/bls_worker.h"
+#include "bls/bls_wrapper.h"
+#include "consensus/params.h"
+#include "validationinterface.h"
 
 namespace llmq
 {
@@ -31,6 +31,7 @@ class CDKGSessionManager;
 class CQuorum
 {
     friend class CQuorumManager;
+
 public:
     const Consensus::LLMQParams& params;
     uint256 minedBlockHash;
@@ -53,7 +54,7 @@ private:
 public:
     CQuorum(const Consensus::LLMQParams& _params, CBLSWorker& _blsWorker) : params(_params), blsCache(_blsWorker), stopCachePopulatorThread(false) {}
     ~CQuorum();
-    void Init(const uint256& minedBlockHash,const CBlockIndex* pindexQuorum, const std::vector<CDeterministicMNCPtr>& members, const std::vector<bool>& validMembers, const CBLSPublicKey& quorumPublicKey);
+    void Init(const uint256& minedBlockHash, const CBlockIndex* pindexQuorum, const std::vector<CDeterministicMNCPtr>& members, const std::vector<bool>& validMembers, const CBLSPublicKey& quorumPublicKey);
 
     bool IsMember(const uint256& proTxHash) const;
     bool IsValidMember(const uint256& proTxHash) const;
@@ -89,14 +90,14 @@ private:
 public:
     CQuorumManager(CEvoDB& _evoDb, CBLSWorker& _blsWorker, CDKGSessionManager& _dkgManager);
 
-    void UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload);
+    void UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockIndex* pindexFork, bool fInitialDownload);
 
 public:
     bool HasQuorum(Consensus::LLMQType llmqType, const uint256& quorumHash);
 
     // all these methods will lock cs_main
-    CQuorumCPtr GetQuorum(Consensus::LLMQType llmqType,const uint256& quorumHash);
-    CQuorumCPtr GetQuorum(Consensus::LLMQType llmqType,const CBlockIndex* pindexQuorum);
+    CQuorumCPtr GetQuorum(Consensus::LLMQType llmqType, const uint256& quorumHash);
+    CQuorumCPtr GetQuorum(Consensus::LLMQType llmqType, const CBlockIndex* pindexQuorum);
 
     CQuorumCPtr GetNewestQuorum(Consensus::LLMQType llmqType);
     std::vector<CQuorumCPtr> ScanQuorums(Consensus::LLMQType llmqType, size_t maxCount);
@@ -105,13 +106,13 @@ public:
     CQuorumCPtr SelectQuorum(Consensus::LLMQType llmqType, const uint256& startBlock, const uint256& selectionHash, size_t poolSize);
 
 private:
-    void EnsureQuorumConnections(Consensus::LLMQType llmqType, const CBlockIndex *pindexNew);
+    void EnsureQuorumConnections(Consensus::LLMQType llmqType, const CBlockIndex* pindexNew);
 
-    bool BuildQuorumFromCommitment(const CFinalCommitment& qc, const CBlockIndex* pindexQuorum,const uint256& minedBlockHash, std::shared_ptr<CQuorum>& quorum) const;
+    bool BuildQuorumFromCommitment(const CFinalCommitment& qc, const CBlockIndex* pindexQuorum, const uint256& minedBlockHash, std::shared_ptr<CQuorum>& quorum) const;
     bool BuildQuorumContributions(const CFinalCommitment& fqc, std::shared_ptr<CQuorum>& quorum) const;
 };
 
 extern std::unique_ptr<CQuorumManager> quorumManager;
-}
+} // namespace llmq
 
-#endif //DASH_QUORUMS_H
+#endif // DASH_QUORUMS_H

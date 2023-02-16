@@ -5,6 +5,8 @@
 
 #include "quorums.h"
 #include "evo/deterministicmns.h"
+#include "evo/specialtx_validation.h"
+#include "llmq/quorums_connections.cpp"
 #include "logging.h"
 #include "net.h"
 #include "quorums_blockprocessor.h"
@@ -13,16 +15,14 @@
 #include "quorums_dkgsessionmgr.h"
 #include "quorums_init.h"
 #include "quorums_utils.h"
-#include "llmq/quorums_connections.cpp"
-#include "evo/specialtx_validation.h"
 
 #include "activemasternode.h"
 #include "chainparams.h"
+#include "cxxtimer.h"
 #include "init.h"
 #include "shutdown.h"
 #include "univalue.h"
 #include "validation.h"
-#include "cxxtimer.h"
 
 
 namespace llmq
@@ -53,7 +53,7 @@ CQuorum::~CQuorum()
     }
 }
 
-void CQuorum::Init(const uint256& _minedBlockHash,const CBlockIndex* _pindexQuorum, const std::vector<CDeterministicMNCPtr>& _members, const std::vector<bool>& _validMembers, const CBLSPublicKey& _quorumPublicKey)
+void CQuorum::Init(const uint256& _minedBlockHash, const CBlockIndex* _pindexQuorum, const std::vector<CDeterministicMNCPtr>& _members, const std::vector<bool>& _validMembers, const CBLSPublicKey& _quorumPublicKey)
 {
     minedBlockHash = _minedBlockHash;
     pindexQuorum = _pindexQuorum;
@@ -147,7 +147,7 @@ void CQuorum::StartCachePopulatorThread(std::shared_ptr<CQuorum> _this)
 
     // this thread will exit after some time
     // when then later some other thread tries to get keys, it will be much faster
-    _this->cachePopulatorThread = std::thread(&TraceThread<std::function<void()> >,"quorum-cachepop",[_this, t]{
+    _this->cachePopulatorThread = std::thread(&TraceThread<std::function<void()> >, "quorum-cachepop", [_this, t] {
         for (size_t i = 0; i < _this->members.size() && !_this->stopCachePopulatorThread && !ShutdownRequested(); i++) {
             if (_this->validMembers[i]) {
                 _this->GetPubKeyShare(i);
@@ -157,10 +157,9 @@ void CQuorum::StartCachePopulatorThread(std::shared_ptr<CQuorum> _this)
     });
 }
 
-CQuorumManager::CQuorumManager(CEvoDB& _evoDb, CBLSWorker& _blsWorker, CDKGSessionManager& _dkgManager) :
-    evoDb(_evoDb),
-    blsWorker(_blsWorker),
-    dkgManager(_dkgManager)
+CQuorumManager::CQuorumManager(CEvoDB& _evoDb, CBLSWorker& _blsWorker, CDKGSessionManager& _dkgManager) : evoDb(_evoDb),
+                                                                                                          blsWorker(_blsWorker),
+                                                                                                          dkgManager(_dkgManager)
 {
 }
 
@@ -176,7 +175,7 @@ void CQuorumManager::UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockI
         EnsureQuorumConnections(p.first, pindexNew);
     }
 }
-//ensure that we still have a connection with the last params.keepOldConnections quorums
+// ensure that we still have a connection with the last params.keepOldConnections quorums
 void CQuorumManager::EnsureQuorumConnections(Consensus::LLMQType llmqType, const CBlockIndex* pindexNew)
 {
     AssertLockHeld(cs_main);
@@ -211,9 +210,7 @@ void CQuorumManager::EnsureQuorumConnections(Consensus::LLMQType llmqType, const
 }
 
 
-
-
-bool CQuorumManager::BuildQuorumFromCommitment(const CFinalCommitment& qc, const CBlockIndex* pindexQuorum,const uint256& minedBlockHash, std::shared_ptr<CQuorum>& quorum) const
+bool CQuorumManager::BuildQuorumFromCommitment(const CFinalCommitment& qc, const CBlockIndex* pindexQuorum, const uint256& minedBlockHash, std::shared_ptr<CQuorum>& quorum) const
 {
     AssertLockHeld(cs_main);
 
@@ -250,7 +247,6 @@ bool CQuorumManager::BuildQuorumFromCommitment(const CFinalCommitment& qc, const
 
 bool CQuorumManager::BuildQuorumContributions(const CFinalCommitment& fqc, std::shared_ptr<CQuorum>& quorum) const
 {
-    
     std::vector<uint16_t> memberIndexes;
     std::vector<BLSVerificationVectorPtr> vvecs;
     BLSSecretKeyVector skContributions;
@@ -337,7 +333,7 @@ CQuorumCPtr CQuorumManager::SelectQuorum(Consensus::LLMQType llmqType, const uin
         return nullptr;
     }
 
-    std::vector<std::pair<uint256, size_t>> scores;
+    std::vector<std::pair<uint256, size_t> > scores;
     scores.reserve(quorums.size());
     for (size_t i = 0; i < quorums.size(); i++) {
         CHashWriter h(SER_NETWORK, 0);
@@ -388,14 +384,14 @@ CQuorumCPtr CQuorumManager::GetQuorum(Consensus::LLMQType llmqType, const CBlock
 
     CFinalCommitment qc;
     uint256 retMinedBlockHash;
-    if (!quorumBlockProcessor->GetMinedCommitment(llmqType, quorumHash, qc,retMinedBlockHash)) {
+    if (!quorumBlockProcessor->GetMinedCommitment(llmqType, quorumHash, qc, retMinedBlockHash)) {
         return nullptr;
     }
 
     auto& params = Params().GetConsensus().llmqs.at(llmqType);
 
     auto quorum = std::make_shared<CQuorum>(params, blsWorker);
-    if (!BuildQuorumFromCommitment(qc,pindexQuorum,retMinedBlockHash,quorum)) {
+    if (!BuildQuorumFromCommitment(qc, pindexQuorum, retMinedBlockHash, quorum)) {
         return nullptr;
     }
 
