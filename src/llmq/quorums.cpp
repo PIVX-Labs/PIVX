@@ -19,7 +19,7 @@
 #include "activemasternode.h"
 #include "chainparams.h"
 #include "cxxtimer.h"
-#include "init.h"
+
 #include "shutdown.h"
 #include "univalue.h"
 #include "validation.h"
