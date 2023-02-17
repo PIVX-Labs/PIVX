@@ -33,7 +33,7 @@ UniValue quorum_list(const JSONRPCRequest& request)
     LOCK(cs_main);
     int count = 10;
     if(request.params.size() == 1) {
-        count = std::stoi(request.params[0].get_str());
+        count = request.params[0].get_int();
         if(count <= 0) {
             throw std::runtime_error(
             "count cannot be 0 or negative!\n");
@@ -75,7 +75,7 @@ UniValue quorum_info(const JSONRPCRequest& request)
 
     LOCK(cs_main);
 
-    Consensus::LLMQType llmqType = static_cast<Consensus::LLMQType>(std::stoi(request.params[0].get_str()));
+    Consensus::LLMQType llmqType = static_cast<Consensus::LLMQType>(request.params[0].get_int());
     if (!Params().GetConsensus().llmqs.count(llmqType)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid llmqType");
     }
@@ -83,7 +83,7 @@ UniValue quorum_info(const JSONRPCRequest& request)
     uint256 blockHash = ParseHashV(request.params[1], "quorumHash");
     bool includeSkShare = false;
     if (request.params.size() > 2) {
-        includeSkShare = std::stoi(request.params[2].get_str());
+        includeSkShare = request.params[2].get_bool();
     }
 
     auto quorum = llmq::quorumManager->GetQuorum(llmqType, blockHash);
@@ -136,7 +136,7 @@ UniValue getminedcommitment(const JSONRPCRequest& request)
         );
     }
 
-    Consensus::LLMQType llmq_type = static_cast<Consensus::LLMQType>(std::stoi(request.params[0].get_str()));
+    Consensus::LLMQType llmq_type = static_cast<Consensus::LLMQType>(request.params[0].get_int());
     if (!Params().GetConsensus().llmqs.count(llmq_type)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid llmq_type");
     }
@@ -172,7 +172,7 @@ UniValue getquorummembers(const JSONRPCRequest& request)
         );
     }
 
-    Consensus::LLMQType llmq_type = static_cast<Consensus::LLMQType>(std::stoi(request.params[0].get_str()));
+    Consensus::LLMQType llmq_type = static_cast<Consensus::LLMQType>(request.params[0].get_int());
     if (!Params().GetConsensus().llmqs.count(llmq_type)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid llmq_type");
     }
