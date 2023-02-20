@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "quorums_signing.h"
+#include "logging.h"
 #include "quorums_utils.h"
 #include "quorums_signing_shares.h"
 
@@ -490,6 +491,7 @@ bool CSigningManager::AsyncSignIfMember(Consensus::LLMQType llmqType, const uint
         LogPrint(BCLog::LLMQ, "CSigningManager::%s -- failed to select quorum. id=%s, msgHash=%s\n", __func__, id.ToString(), msgHash.ToString());
         return false;
     }
+    LogPrintf("CSigSharesManager -- quorum selected for signing is: %d", quorum->pindexQuorum->GetBlockHash());
 
     if (!quorum->IsValidMember(activeMasternodeManager->GetProTx())) {
         LogPrint(BCLog::LLMQ, "CSigningManager::%s -- we're not a valid member of quorum %s\n", __func__, quorum->pindexQuorum->GetBlockHash().ToString());
