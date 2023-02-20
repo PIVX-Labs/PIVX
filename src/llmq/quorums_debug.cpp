@@ -43,6 +43,7 @@ UniValue CDKGDebugSessionStatus::ToJson(int detailLevel) const
     ret.pushKV("sentPrematureCommitment", sentPrematureCommitment);
     ret.pushKV("aborted", aborted);
 
+
     struct ArrOrCount {
         int count{0};
         UniValue arr{UniValue::VARR};
@@ -95,6 +96,7 @@ UniValue CDKGDebugSessionStatus::ToJson(int detailLevel) const
     push(receivedComplaints, "receivedComplaints");
     push(receivedJustifications, "receivedJustifications");
     push(receivedPrematureCommitments, "receivedPrematureCommitments");
+    ret.pushKV("receivedFinalCommitment", receivedFinalCommitment);
 
     if (detailLevel == 2) {
         UniValue arr(UniValue::VARR);

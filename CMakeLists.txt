@@ -244,6 +244,8 @@ set(SERVER_SOURCES
         ./src/net.cpp
         ./src/net_processing.cpp
         ./src/noui.cpp
+        ./src/llmq/quorums_signing.cpp
+        ./src/llmq/quorums_signing_shares.cpp
         ./src/policy/fees.cpp
         ./src/policy/policy.cpp
         ./src/pow.cpp
@@ -419,6 +421,7 @@ set(COMMON_SOURCES
         ./src/evo/providertx.cpp
         ./src/evo/specialtx_validation.cpp
         ./src/evo/specialtx_utils.cpp
+        ./src/llmq/quorums.cpp
         ./src/llmq/quorums_blockprocessor.cpp
         ./src/llmq/quorums_commitment.cpp
         ./src/llmq/quorums_connections.cpp

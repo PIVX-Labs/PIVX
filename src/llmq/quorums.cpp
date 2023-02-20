@@ -23,6 +23,7 @@
 #include "shutdown.h"
 #include "univalue.h"
 #include "validation.h"
+#include <iostream>
 
 
 namespace llmq

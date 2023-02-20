@@ -16,6 +16,8 @@ namespace llmq
 
 namespace utils
 {
+
+
 uint256 BuildCommitmentHash(Consensus::LLMQType llmqType, const uint256& blockHash, const std::vector<bool>& validMembers, const CBLSPublicKey& pubKey, const uint256& vvecHash);
 uint256 BuildSignHash(Consensus::LLMQType llmqType, const uint256& quorumHash, const uint256& id, const uint256& msgHash);
 
@@ -27,6 +29,39 @@ uint256 BuildSignHash(const T& s)
 }
 
 std::string ToHexStr(const std::vector<bool>& vBits);
+
+bool IsQuorumActive(Consensus::LLMQType llmqType, const uint256& quorumHash);
+
+template <typename NodesContainer, typename Continue, typename Callback>
+static void IterateNodesRandom(NodesContainer& nodeStates, Continue&& cont, Callback&& callback, FastRandomContext& rnd)
+{
+   std::vector<typename NodesContainer::iterator> rndNodes;
+   rndNodes.reserve(nodeStates.size());
+   for (auto it = nodeStates.begin(); it != nodeStates.end(); ++it) {
+       rndNodes.emplace_back(it);
+   }
+   if (rndNodes.empty()) {
+       return;
+   }
+   std::shuffle(rndNodes.begin(), rndNodes.end(), rnd);
+
+   size_t idx = 0;
+   while (!rndNodes.empty() && cont()) {
+       auto nodeId = rndNodes[idx]->first;
+       auto& ns = rndNodes[idx]->second;
+
+       if (callback(nodeId, ns)) {
+           idx = (idx + 1) % rndNodes.size();
+       } else {
+           rndNodes.erase(rndNodes.begin() + idx);
+           if (rndNodes.empty()) {
+               break;
+           }
+           idx %= rndNodes.size();
+       }
+   }
+}
+
 } // namespace llmq::utils
 
 } // namespace llmq
