@@ -2,15 +2,18 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://www.opensource.org/licenses/mit-license.php.
 
+#include "llmq/quorums_signing.h"
+#include "llmq/quorums_signing_shares.h"
 #include "masternode-sync.h"
 
 #include "llmq/quorums_blockprocessor.h"
 #include "llmq/quorums_dkgsessionmgr.h"
-#include "masternodeman.h"          // for mnodeman
+#include "masternodeman.h" // for mnodeman
+#include "net.h"
+#include "net_processing.h" // for Misbehaving
 #include "netmessagemaker.h"
-#include "net_processing.h"         // for Misbehaving
-#include "spork.h"                  // for sporkManager
-#include "streams.h"                // for CDataStream
+#include "spork.h"   // for sporkManager
+#include "streams.h" // for CDataStream
 #include "tiertwo/tiertwo_sync_state.h"
 
 
@@ -67,6 +70,14 @@ bool CMasternodeSync::MessageDispatcher(CNode* pfrom, std::string& strCommand, C
         if (!llmq::quorumDKGSessionManager->ProcessMessage(pfrom, strCommand, vRecv)) {
             WITH_LOCK(cs_main, Misbehaving(pfrom->GetId(), 100));
         }
+        return true;
+    }
+    if (strCommand == NetMsgType::QSIGSHARESINV || NetMsgType::QGETSIGSHARES || NetMsgType::QBSIGSHARES) {
+        llmq::quorumSigSharesManager->ProcessMessage(pfrom, strCommand, vRecv, *g_connman);
+        return true;
+    }
+    if (strCommand == NetMsgType::QSIGREC) {
+        llmq::quorumSigningManager->ProcessMessage(pfrom, strCommand, vRecv, *g_connman);
         return true;
     }
 
