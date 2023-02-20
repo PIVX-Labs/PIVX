@@ -243,6 +243,8 @@ set(SERVER_SOURCES
         ./src/net.cpp
         ./src/net_processing.cpp
         ./src/noui.cpp
+        ./src/llmq/quorums_signing.cpp
+        ./src/llmq/quorums_signing_shares.cpp
         ./src/policy/fees.cpp
         ./src/policy/policy.cpp
         ./src/pow.cpp

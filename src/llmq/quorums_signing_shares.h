@@ -18,8 +18,8 @@
 
 #include "llmq/quorums.h"
 
-#include <thread>
 #include <mutex>
+#include <thread>
 
 class CEvoDB;
 class CScheduler;
@@ -64,8 +64,9 @@ public:
     std::vector<bool> inv;
 
 public:
-    SERIALIZE_METHODS(CSigSharesInv, obj){
-         READWRITE(obj.llmqType);
+    SERIALIZE_METHODS(CSigSharesInv, obj)
+    {
+        READWRITE(obj.llmqType);
 
         auto& consensus = Params().GetConsensus();
         auto it = consensus.llmqs.find((Consensus::LLMQType)obj.llmqType);
@@ -74,9 +75,9 @@ public:
         }
         const auto& params = it->second;
         READWRITE(obj.signHash);
-        READWRITE(AUTOBITSET(obj.inv,(size_t)params.size));
+        READWRITE(AUTOBITSET(obj.inv, (size_t)params.size));
     }
-    
+
     void Init(Consensus::LLMQType _llmqType, const uint256& _signHash);
     bool IsSet(uint16_t quorumMember) const;
     void Set(uint16_t quorumMember, bool v);
@@ -94,37 +95,37 @@ public:
     uint256 quorumHash;
     uint256 id;
     uint256 msgHash;
-    std::vector<std::pair<uint16_t, CBLSSignature>> sigShares;
+    std::vector<std::pair<uint16_t, CBLSSignature> > sigShares;
 
 public:
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOpBase(Stream& s, Operation ser_action)
     {
         READWRITE(llmqType);
         READWRITE(quorumHash);
         READWRITE(id);
         READWRITE(msgHash);
-        ::Serialize(s,llmqType);
+        ::Serialize(s, llmqType);
     }
 
-    template<typename Stream>
+    template <typename Stream>
     inline void Serialize(Stream& s) const
     {
-        s<<llmqType;
-        s<<quorumHash;
-        s<< id;
-        s<< msgHash;
-        //this->SerializationOpBase(s, CSerActionSerialize());
+        s << llmqType;
+        s << quorumHash;
+        s << id;
+        s << msgHash;
+        // this->SerializationOpBase(s, CSerActionSerialize());
         s << sigShares;
     }
-    template<typename Stream>
+    template <typename Stream>
     inline void Unserialize(Stream& s)
     {
-        //this->SerializationOpBase(s, CSerActionUnserialize());
-        s>>llmqType;
-        s>> quorumHash;
-        s>> id;
-        s>> msgHash;
+        // this->SerializationOpBase(s, CSerActionUnserialize());
+        s >> llmqType;
+        s >> quorumHash;
+        s >> id;
+        s >> msgHash;
         // we do custom deserialization here with the malleability check skipped for signatures
         // we can do this here because we never use the hash of a sig share for identification and are only interested
         // in validity
@@ -173,7 +174,7 @@ public:
 
     // elements are added whenever we receive a valid sig share from this node
     // this triggers us to send inventory items to him as he seems to be interested in these
-    std::set<std::pair<Consensus::LLMQType, uint256>> interestedIn;
+    std::set<std::pair<Consensus::LLMQType, uint256> > interestedIn;
 
     bool banned{false};
 
@@ -205,10 +206,10 @@ private:
     std::map<uint256, int64_t> firstSeenForSessions;
 
     std::map<NodeId, CSigSharesNodeState> nodeStates;
-    std::map<SigShareKey, std::pair<NodeId, int64_t>> sigSharesRequested;
+    std::map<SigShareKey, std::pair<NodeId, int64_t> > sigSharesRequested;
     std::set<SigShareKey> sigSharesToAnnounce;
 
-    std::vector<std::tuple<const CQuorumCPtr, uint256, uint256>> pendingSigns;
+    std::vector<std::tuple<const CQuorumCPtr, uint256, uint256> > pendingSigns;
 
     // must be protected by cs
     FastRandomContext rnd;
@@ -236,7 +237,7 @@ private:
     bool VerifySigSharesInv(NodeId from, const CSigSharesInv& inv);
     bool PreVerifyBatchedSigShares(NodeId nodeId, const CBatchedSigShares& batchedSigShares, bool& retBan);
 
-    void CollectPendingSigSharesToVerify(size_t maxUniqueSessions, std::map<NodeId, std::vector<CSigShare>>& retSigShares, std::map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr>& retQuorums);
+    void CollectPendingSigSharesToVerify(size_t maxUniqueSessions, std::map<NodeId, std::vector<CSigShare> >& retSigShares, std::map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr>& retQuorums);
     void ProcessPendingSigShares(CConnman& connman);
 
     void ProcessPendingSigSharesFromNode(NodeId nodeId, const std::vector<CSigShare>& sigShares, const std::map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr>& quorums, CConnman& connman);
@@ -252,15 +253,15 @@ private:
     void BanNode(NodeId nodeId);
 
     void SendMessages();
-    void CollectSigSharesToRequest(std::map<NodeId, std::map<uint256, CSigSharesInv>>& sigSharesToRequest);
-    void CollectSigSharesToSend(std::map<NodeId, std::map<uint256, CBatchedSigShares>>& sigSharesToSend);
-    void CollectSigSharesToAnnounce(std::map<NodeId, std::map<uint256, CSigSharesInv>>& sigSharesToAnnounce);
+    void CollectSigSharesToRequest(std::map<NodeId, std::map<uint256, CSigSharesInv> >& sigSharesToRequest);
+    void CollectSigSharesToSend(std::map<NodeId, std::map<uint256, CBatchedSigShares> >& sigSharesToSend);
+    void CollectSigSharesToAnnounce(std::map<NodeId, std::map<uint256, CSigSharesInv> >& sigSharesToAnnounce);
     void SignPendingSigShares();
     void WorkThreadMain();
 };
 
 extern CSigSharesManager* quorumSigSharesManager;
 
-}
+} // namespace llmq
 
-#endif //PIVX_QUORUMS_SIGNING_SHARES_H
+#endif // PIVX_QUORUMS_SIGNING_SHARES_H

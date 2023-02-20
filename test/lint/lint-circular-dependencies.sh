@@ -43,6 +43,7 @@ EXPECTED_CIRCULAR_DEPENDENCIES=(
     "llmq/quorums -> llmq/quorums_connections -> llmq/quorums"
     "llmq/quorums_dkgsession -> llmq/quorums_dkgsessionmgr -> llmq/quorums_dkgsessionhandler -> llmq/quorums_dkgsession"
     "llmq/quorums_dkgsessionhandler -> net_processing -> llmq/quorums_dkgsessionmgr -> llmq/quorums_dkgsessionhandler"
+    "llmq/quorums_signing -> net_processing -> llmq/quorums_signing"
     "chain -> legacy/stakemodifier -> validation -> validationinterface -> chain"
     "chain -> legacy/stakemodifier -> stakeinput -> txdb -> chain"
     "chain -> legacy/stakemodifier -> validation -> checkpoints -> chain"
