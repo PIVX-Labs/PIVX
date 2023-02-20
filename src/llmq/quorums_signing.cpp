@@ -472,6 +472,8 @@ bool CSigningManager::AsyncSignIfMember(Consensus::LLMQType llmqType, const uint
         }
 
         if (db.HasRecoveredSigForId(llmqType, id)) {
+            LogPrintf("CSigningManager::%s -- We have already a valid treshold signature for the request id: %s\n", __func__, id.ToString());
+        
             // no need to sign it if we already have a recovered sig
             return false;
         }
@@ -490,7 +492,7 @@ bool CSigningManager::AsyncSignIfMember(Consensus::LLMQType llmqType, const uint
     }
 
     if (!quorum->IsValidMember(activeMasternodeManager->GetProTx())) {
-        //LogPrintf("CSigningManager::%s -- we're not a valid member of quorum %s\n", __func__, quorum->quorumHash.ToString());
+        LogPrintf("CSigningManager::%s -- we're not a valid member of quorum %s\n", __func__, quorum->pindexQuorum->GetBlockHash().ToString());
         return false;
     }
 
