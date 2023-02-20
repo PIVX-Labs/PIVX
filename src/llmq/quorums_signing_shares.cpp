@@ -7,6 +7,7 @@
 #include "bls/bls_batchverifier.h"
 #include "cxxtimer.h"
 #include "init.h"
+#include "logging.h"
 #include "net.h"
 #include "net_processing.h"
 #include "netmessagemaker.h"
@@ -554,6 +555,7 @@ void CSigSharesManager::ProcessSigShare(NodeId nodeId, const CSigShare& sigShare
     std::set<NodeId> quorumNodes;
     if (sigShare.quorumMember == quorum->GetMemberIndex(activeMasternodeManager->GetProTx())) {
         quorumNodes = connman.GetTierTwoConnMan()->getQuorumNodes((Consensus::LLMQType)sigShare.llmqType, sigShare.quorumHash);
+        LogPrint(BCLog::LLMQ, "CSigSharesManager::%s -- preparing sending your sign to: n=%d quorum members.\n", __func__, quorumNodes.size());
         // make sure node states are created for these nodes (we might have not received any message from these yet)
         for (auto otherNodeId : quorumNodes) {
             nodeStates[otherNodeId].interestedIn.emplace(std::make_pair((Consensus::LLMQType)sigShare.llmqType, sigShare.quorumHash));
