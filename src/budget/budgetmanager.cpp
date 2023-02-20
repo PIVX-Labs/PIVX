@@ -5,6 +5,7 @@
 
 #include "budget/budgetmanager.h"
 
+#include "budget/budgetutil.h"
 #include "consensus/validation.h"
 #include "evo/deterministicmns.h"
 #include "masternodeman.h"
@@ -113,7 +114,7 @@ uint256 CBudgetManager::SubmitFinalBudget()
      // Submit final budget during the last 2 days (2880 blocks) before payment for Mainnet, about 9 minutes (9 blocks) for Testnet
     int finalizationWindow = ((nBlocksPerCycle / 30) * 2);
 
-    if (Params().IsTestnet()) {
+    if (Params().IsTestnet() || Params().IsRegTestNet()) {
         // NOTE: 9 blocks for testnet is way to short to have any masternode submit an automatic vote on the finalized(!) budget,
         //       because those votes are only submitted/relayed once every 56 blocks in CFinalizedBudget::AutoCheck()
 
@@ -510,6 +511,30 @@ bool CBudgetManager::GetExpectedPayeeAmount(int chainHeight, CAmount& nAmountRet
     return GetPayeeAndAmount(chainHeight, payeeRet, nAmountRet);
 }
 
+const CFinalizedBudget* CBudgetManager::GetBestFinalizedBudget(int chainHeight) const
+{
+    if (!IsSuperBlock(chainHeight)) {
+        return nullptr;
+    }
+    int nFivePercent = mnodeman.CountEnabled() / 20;
+
+    const auto highest = GetBudgetWithHighestVoteCount(chainHeight);
+    if (highest.m_budget_fin == nullptr || highest.m_vote_count <= nFivePercent) {
+        // No finalization or not enough votes.
+        return nullptr;
+    }
+    return highest.m_budget_fin;
+}
+
+CAmount CBudgetManager::GetFinalizedBudgetTotalPayout(int chainHeight) const
+{
+    const CFinalizedBudget* pfb = GetBestFinalizedBudget(chainHeight);
+    if (pfb == nullptr) {
+        return 0;
+    }
+    return pfb->GetTotalPayout();
+}
+
 bool CBudgetManager::FillBlockPayee(CMutableTransaction& txCoinbase, CMutableTransaction& txCoinstake, const int nHeight, bool fProofOfStake) const
 {
     if (nHeight <= 0) return false;
@@ -551,6 +576,14 @@ bool CBudgetManager::FillBlockPayee(CMutableTransaction& txCoinbase, CMutableTra
     ExtractDestination(payee, address);
     LogPrint(BCLog::MNBUDGET,"%s: Budget payment to %s for %lld\n", __func__, EncodeDestination(address), nAmount);
     return true;
+}
+
+void CBudgetManager::FillBlockPayees(CMutableTransaction& tx, int height) const
+{
+    const CFinalizedBudget* pfb = GetBestFinalizedBudget(height);
+    if (pfb != nullptr) {
+        pfb->PayAllBudgets(tx);
+    }
 }
 
 void CBudgetManager::VoteOnFinalizedBudgets()
@@ -740,6 +773,18 @@ TrxValidationStatus CBudgetManager::IsTransactionValid(const CTransaction& txNew
     // If not enough masternodes autovoted for any of the finalized budgets or if none of the txs
     // are valid, we should pay a masternode instead
     return fThreshold ? TrxValidationStatus::InValid : TrxValidationStatus::VoteThreshold;
+}
+
+bool CBudgetManager::IsValidSuperBlockTx(const CTransaction& txNew, int nBlockHeight) const
+{
+    assert(IsSuperBlock(nBlockHeight));
+
+    const CFinalizedBudget* pfb = GetBestFinalizedBudget(nBlockHeight);
+    if (pfb == nullptr) {
+        // No finalization or not enough votes. Nothing to check.
+        return true;
+    }
+    return pfb->AllBudgetsPaid(txNew);
 }
 
 std::vector<CBudgetProposal*> CBudgetManager::GetAllProposalsOrdered()

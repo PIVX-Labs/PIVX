@@ -169,13 +169,13 @@ void CQuorumManager::UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockI
     if (fInitialDownload || !activeMasternodeManager || !deterministicMNManager->IsDIP3Enforced(pindexNew->nHeight)) {
         return;
     }
-
     LOCK(cs_main);
 
     for (auto& p : Params().GetConsensus().llmqs) {
         const auto& params = Params().GetConsensus().llmqs.at(p.first);
 
         auto lastQuorums = ScanQuorums(p.first, (size_t)params.keepOldConnections);
+
 
         llmq::EnsureLatestQuorumConnections(p.first, pindexNew, activeMasternodeManager->GetProTx(), lastQuorums);
     }
