@@ -46,14 +46,22 @@ std::set<NodeId> TierTwoConnMan::getQuorumNodes(Consensus::LLMQType llmqType, ui
     LOCK(cs_vPendingMasternodes);
     std::set<NodeId> result;
     auto it = masternodeQuorumNodes.find(std::make_pair(llmqType, quorumHash));
+
+
     if (it == masternodeQuorumNodes.end()) {
+        LogPrint(BCLog::LLMQ, "CSigSharesManager -- quorum not found.\n");
         return {};
     }
     for (const auto pnode : connman->GetvNodes()) {
         if (pnode->fDisconnect) {
+            if (it->second.count(pnode->verifiedProRegTxHash)) {
+                LogPrint(BCLog::LLMQ, "CSigSharesManager -- node in quorum but disconnected. \n");
+            }
+            LogPrint(BCLog::LLMQ, "CSigSharesManager -- node disconnected.\n");
             continue;
         }
         if (!it->second.count(pnode->verifiedProRegTxHash)) {
+            LogPrint(BCLog::LLMQ, "CSigSharesManager -- node connected but not in quorum. \n");
             continue;
         }
         result.emplace(pnode->GetId());
