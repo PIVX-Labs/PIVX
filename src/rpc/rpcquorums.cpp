@@ -10,11 +10,78 @@
 #include "llmq/quorums_commitment.h"
 #include "llmq/quorums_debug.h"
 #include "llmq/quorums_dkgsession.h"
+#include "llmq/quorums_signing.h"
 #include "llmq/quorums_utils.h"
 #include "net.h"
 #include "rpc/server.h"
 #include "validation.h"
 #include <string>
+
+void quorum_sign_help()
+{
+    throw std::runtime_error(
+        "quorum sign llmqType \"id\" \"msgHash\"\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
+}
+
+void quorum_hasrecsig_help()
+{
+    throw std::runtime_error(
+        "quorum hasrecsig llmqType \"id\" \"msgHash\"\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
+}
+
+void quorum_isconflicting_help()
+{
+    throw std::runtime_error(
+        "quorum isconflicting llmqType \"id\" \"msgHash\"\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
+}
+
+UniValue quorum_sigs_cmd(const JSONRPCRequest& request)
+{
+    auto cmd = request.params[0].get_str();
+    if (request.fHelp || (request.params.size() != 4)) {
+        if (cmd == "sign") {
+            quorum_sign_help();
+        } else if (cmd == "hasrecsig") {
+            quorum_hasrecsig_help();
+        } else if (cmd == "isconflicting") {
+            quorum_isconflicting_help();
+        } else {
+            // shouldn't happen as it's already handled by the caller
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid cmd");
+        }
+    }
+
+    Consensus::LLMQType llmqType = static_cast<Consensus::LLMQType>(request.params[1].get_int());
+    if (!Params().GetConsensus().llmqs.count(llmqType)) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid LLMQ type");
+    }
+
+    uint256 id = ParseHashV(request.params[2], "id");
+    uint256 msgHash = ParseHashV(request.params[3], "msgHash");
+
+    if (cmd == "sign") {
+        return llmq::quorumSigningManager->AsyncSignIfMember(llmqType, id, msgHash);
+    } else if (cmd == "hasrecsig") {
+        return llmq::quorumSigningManager->HasRecoveredSig(llmqType, id, msgHash);
+    } else if (cmd == "isconflicting") {
+        return llmq::quorumSigningManager->IsConflicting(llmqType, id, msgHash);
+    } else {
+        // shouldn't happen as it's already handled by the caller
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "invalid cmd");
+    }
+}
 
 void quorum_list_help()
 {
@@ -280,6 +347,7 @@ static const CRPCCommand commands[] =
         {"evo", "quorumdkgstatus", &quorumdkgstatus, true, {"detail_level"}},
         {"evo", "quorum_list", &quorum_list, true, {"count"}},
         {"evo", "quorum_info", &quorum_info, true, {"llmqType", "quorumHash", "includeSkShare"}},
+        {"evo", "quorum_sigs_cmd", &quorum_sigs_cmd, true, {"cmd", "llmqType", "id", "msgHash"}},
 };
 
 void RegisterQuorumsRPCCommands(CRPCTable& tableRPC)
