@@ -7,10 +7,10 @@
 #define PIVX_NET_MASTERNODES_H
 
 #include "consensus/params.h"
+#include "net.h"
 #include "sync.h"
 #include "threadinterrupt.h"
 #include "uint256.h"
-
 #include <thread>
 
 class CAddress;
@@ -36,6 +36,10 @@ public:
 
     // Return quorum nodes for a given llmqType
     std::set<uint256> getQuorumNodes(Consensus::LLMQType llmqType);
+
+
+    // Return quorum nodes for a given llmqType and hash
+    std::set<NodeId> getQuorumNodes(Consensus::LLMQType llmqType, uint256 quorumHash);
 
     // Return true if the quorum was already registered
     bool hasQuorumNodes(Consensus::LLMQType llmqType, const uint256& quorumHash);
