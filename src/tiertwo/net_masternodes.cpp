@@ -45,10 +45,10 @@ std::set<NodeId> TierTwoConnMan::getQuorumNodes(Consensus::LLMQType llmqType, ui
 {
     LOCK(cs_vPendingMasternodes);
     std::set<NodeId> result;
-    auto it = masternodeQuorumNodes.find(std::make_pair(llmqType, quorumHash));
+    auto it = masternodeQuorumRelayMembers.find(std::make_pair(llmqType, quorumHash));
 
 
-    if (it == masternodeQuorumNodes.end()) {
+    if (it == masternodeQuorumRelayMembers.end()) {
         LogPrint(BCLog::LLMQ, "CSigSharesManager -- quorum not found.\n");
         return {};
     }
