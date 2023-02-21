@@ -46,6 +46,7 @@ bool CMasternodeSync::UpdatePeerSyncState(const NodeId& id, const char* msg, con
 
 bool CMasternodeSync::MessageDispatcher(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
+    LogPrintf("TierTwoMessageHandler: received strCommand: %s \n", strCommand);
     if (strCommand == NetMsgType::GETSPORKS) {
         // send sporks
         sporkManager.ProcessGetSporks(pfrom, strCommand, vRecv);
