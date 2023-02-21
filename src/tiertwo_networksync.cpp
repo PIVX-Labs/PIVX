@@ -49,6 +49,7 @@ bool CMasternodeSync::MessageDispatcher(CNode* pfrom, std::string& strCommand, C
     if (strCommand == NetMsgType::GETSPORKS) {
         // send sporks
         sporkManager.ProcessGetSporks(pfrom, strCommand, vRecv);
+        LogPrintf("%s: getsporks return true\n", __func__);
         return true;
     }
 
@@ -72,7 +73,7 @@ bool CMasternodeSync::MessageDispatcher(CNode* pfrom, std::string& strCommand, C
         }
         return true;
     }
-    if (strCommand == NetMsgType::QSIGSHARESINV || NetMsgType::QGETSIGSHARES || NetMsgType::QBSIGSHARES) {
+    if (strCommand == NetMsgType::QSIGSHARESINV || strCommand == NetMsgType::QGETSIGSHARES || strCommand == NetMsgType::QBSIGSHARES) {
         llmq::quorumSigSharesManager->ProcessMessage(pfrom, strCommand, vRecv, *g_connman);
         return true;
     }
@@ -110,12 +111,14 @@ bool CMasternodeSync::MessageDispatcher(CNode* pfrom, std::string& strCommand, C
             // This could happen because of the message thread is requesting the sporks alone..
             // So.. for now, can just update the peer status and move it to the next state if the end message arrives
             if (spork.nSporkID == SPORK_INVALID) {
+                LogPrintf("%s: Spork Invalid\n", __func__);
                 if (g_tiertwo_sync_state.GetSyncPhase() < MASTERNODE_SYNC_LIST) {
                     // future note: use internal cs for RequestedMasternodeAssets.
                     g_tiertwo_sync_state.SetCurrentSyncPhase(MASTERNODE_SYNC_LIST);
                 }
             }
         }
+        LogPrintf("%s: spork returning true\n", __func__);
         return true;
     }
 
