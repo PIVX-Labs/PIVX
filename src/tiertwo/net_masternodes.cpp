@@ -7,6 +7,7 @@
 
 #include "chainparams.h"
 #include "evo/deterministicmns.h"
+#include "llmq/quorums.h"
 #include "scheduler.h"
 #include "tiertwo/masternode_meta_manager.h" // for g_mmetaman
 #include "tiertwo/tiertwo_sync_state.h"
@@ -45,8 +46,8 @@ std::set<NodeId> TierTwoConnMan::getQuorumNodes(Consensus::LLMQType llmqType, ui
 {
     LOCK(cs_vPendingMasternodes);
     std::set<NodeId> result;
-    auto it = masternodeQuorumNodes.find(std::make_pair(llmqType, quorumHash));
-    if (it == masternodeQuorumNodes.end()) {
+    auto it = masternodeQuorumRelayMembers.find(std::make_pair(llmqType, quorumHash));
+    if (it == masternodeQuorumRelayMembers.end()) {
         return {};
     }
     for (const auto pnode : connman->GetvNodes()) {
@@ -54,6 +55,14 @@ std::set<NodeId> TierTwoConnMan::getQuorumNodes(Consensus::LLMQType llmqType, ui
             continue;
         }
         if (!it->second.count(pnode->verifiedProRegTxHash)) {
+            continue;
+        }
+
+        // is it a valid member?
+        if (!llmq::quorumManager->GetQuorum(llmqType, quorumHash)) {
+            continue;
+        }
+        if (!llmq::quorumManager->GetQuorum(llmqType, quorumHash)->IsValidMember(pnode->verifiedProRegTxHash)) {
             continue;
         }
         result.emplace(pnode->GetId());
