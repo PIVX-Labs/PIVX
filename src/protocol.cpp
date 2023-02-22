@@ -228,6 +228,7 @@ std::string CInv::GetCommand() const
         case MSG_QUORUM_COMPLAINT: return cmd.append(NetMsgType::QCOMPLAINT);
         case MSG_QUORUM_JUSTIFICATION: return cmd.append(NetMsgType::QJUSTIFICATION);
         case MSG_QUORUM_PREMATURE_COMMITMENT: return cmd.append(NetMsgType::QPCOMMITMENT);
+        case MSG_QUORUM_RECOVERED_SIG: return cmd.append(NetMsgType::QSIGREC);
         default:
             throw std::out_of_range(strprintf("%s: type=%d unknown type", __func__, type));
     }
