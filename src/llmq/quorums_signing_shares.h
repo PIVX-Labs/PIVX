@@ -6,7 +6,6 @@
 #ifndef PIVX_QUORUMS_SIGNING_SHARES_H
 #define PIVX_QUORUMS_SIGNING_SHARES_H
 
-#include "bls/bls_worker.h"
 #include "chainparams.h"
 #include "consensus/params.h"
 #include "net.h"

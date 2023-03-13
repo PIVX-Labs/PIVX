@@ -10,10 +10,7 @@
 #include "activemasternode.h"
 #include "bls/bls_batchverifier.h"
 #include "cxxtimer.h"
-#include "init.h"
 #include "net_processing.h"
-#include "netmessagemaker.h"
-#include "scheduler.h"
 #include "validation.h"
 
 #include <algorithm>

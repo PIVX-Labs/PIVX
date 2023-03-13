@@ -8,7 +8,6 @@
 #include "bls/bls_worker.h"
 #include "llmq/quorums.h"
 #include "llmq/quorums_blockprocessor.h"
-#include "llmq/quorums_commitment.h"
 #include "llmq/quorums_debug.h"
 #include "llmq/quorums_dkgsessionmgr.h"
 #include "quorums_signing.h"
