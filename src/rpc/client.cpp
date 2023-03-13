@@ -130,6 +130,7 @@ static const CRPCConvertParam vRPCConvertParams[] = {
     { "listquorums", 0, "count"},
     { "getquoruminfo", 0, "llmqType"},
     { "getquoruminfo", 2, "includeSkShare"},
+    { "quorum_sigs_cmd", 1, "llmqType"},
     { "rawdelegatestake", 1, "amount" },
     { "rawdelegatestake", 3, "ext_owner" },
     { "rawdelegatestake", 4, "include_delegated" },
