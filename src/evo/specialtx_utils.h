@@ -14,7 +14,7 @@ template<typename SpecialTxPayload>
 OperationResult SignSpecialTxPayloadByHash(const CMutableTransaction& tx, SpecialTxPayload& payload, const CKey& key)
 {
     payload.vchSig.clear();
-    uint256 hash = ::SerializeHash(payload);
+    uint256 hash = ::SerializeHash(payload, SER_GETHASH, PROTOCOL_VERSION | ADDRV2_FORMAT);
     return CHashSigner::SignHash(hash, key, payload.vchSig) ? OperationResult{true} :
             OperationResult{false, "failed to sign special tx payload"};
 }
@@ -22,7 +22,7 @@ OperationResult SignSpecialTxPayloadByHash(const CMutableTransaction& tx, Specia
 template<typename SpecialTxPayload>
 OperationResult SignSpecialTxPayloadByHash(const CMutableTransaction& tx, SpecialTxPayload& payload, const CBLSSecretKey& key)
 {
-    payload.sig = key.Sign(::SerializeHash(payload));
+    payload.sig = key.Sign(::SerializeHash(payload, SER_GETHASH, PROTOCOL_VERSION | ADDRV2_FORMAT));
     return payload.sig.IsValid() ? OperationResult{true} : OperationResult{false, "failed to sign special tx payload"};
 }
 

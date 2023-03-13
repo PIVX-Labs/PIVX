@@ -125,7 +125,7 @@ public:
         Field_confirmedHash                     = 0x0040,
         Field_confirmedHashWithProRegTxHash     = 0x0080,
         Field_keyIDOwner                        = 0x0100,
-        Field_pubKeyOperator                     = 0x0200,
+        Field_pubKeyOperator                    = 0x0200,
         Field_keyIDVoting                       = 0x0400,
         Field_addr                              = 0x0800,
         Field_scriptPayout                      = 0x1000,
@@ -233,6 +233,7 @@ class CDeterministicMNListDiff;
 template <typename Stream, typename K, typename T, typename Hash, typename Equal>
 void SerializeImmerMap(Stream& os, const immer::map<K, T, Hash, Equal>& m)
 {
+    os.SetVersion(os.GetVersion() | ADDRV2_FORMAT);
     WriteCompactSize(os, m.size());
     for (typename immer::map<K, T, Hash, Equal>::const_iterator mi = m.begin(); mi != m.end(); ++mi)
         Serialize(os, (*mi));
@@ -241,6 +242,7 @@ void SerializeImmerMap(Stream& os, const immer::map<K, T, Hash, Equal>& m)
 template <typename Stream, typename K, typename T, typename Hash, typename Equal>
 void UnserializeImmerMap(Stream& is, immer::map<K, T, Hash, Equal>& m)
 {
+    is.SetVersion(is.GetVersion() | ADDRV2_FORMAT);
     m = immer::map<K, T, Hash, Equal>();
     unsigned int nSize = ReadCompactSize(is);
     for (unsigned int i = 0; i < nSize; i++) {
@@ -255,12 +257,14 @@ void UnserializeImmerMap(Stream& is, immer::map<K, T, Hash, Equal>& m)
 template<typename Stream, typename K, typename T, typename Hash, typename Equal>
 inline void SerReadWrite(Stream& s, const immer::map<K, T, Hash, Equal>& m, CSerActionSerialize ser_action)
 {
+    s.SetVersion(s.GetVersion() | ADDRV2_FORMAT);
     ::SerializeImmerMap(s, m);
 }
 
 template<typename Stream, typename K, typename T, typename Hash, typename Equal>
 inline void SerReadWrite(Stream& s, immer::map<K, T, Hash, Equal>& obj, CSerActionUnserialize ser_action)
 {
+    s.SetVersion(s.GetVersion() | ADDRV2_FORMAT);
     ::UnserializeImmerMap(s, obj);
 }
 
@@ -306,6 +310,7 @@ public:
 
     template<typename Stream>
     void Unserialize(Stream& s) {
+        s.SetVersion(s.GetVersion() | ADDRV2_FORMAT);
         mnMap = MnMap();
         mnUniquePropertyMap = MnUniquePropertyMap();
         mnInternalIdMap = MnInternalIdMap();
@@ -527,6 +532,7 @@ public:
     template<typename Stream>
     void Unserialize(Stream& s)
     {
+        s.SetVersion(s.GetVersion() | ADDRV2_FORMAT);
         updatedMNs.clear();
         removedMns.clear();
 

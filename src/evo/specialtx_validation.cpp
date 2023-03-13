@@ -51,7 +51,7 @@ template <typename Payload>
 static bool CheckHashSig(const Payload& pl, const CKeyID& keyID, CValidationState& state)
 {
     std::string strError;
-    if (!CHashSigner::VerifyHash(::SerializeHash(pl), keyID, pl.vchSig, strError)) {
+    if (!CHashSigner::VerifyHash(::SerializeHash(pl, SER_GETHASH, PROTOCOL_VERSION | ADDRV2_FORMAT), keyID, pl.vchSig, strError)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-protx-sig", false, strError);
     }
     return true;
@@ -60,7 +60,7 @@ static bool CheckHashSig(const Payload& pl, const CKeyID& keyID, CValidationStat
 template <typename Payload>
 static bool CheckHashSig(const Payload& pl, const CBLSPublicKey& pubKey, CValidationState& state)
 {
-    if (!pl.sig.VerifyInsecure(pubKey, ::SerializeHash(pl))) {
+    if (!pl.sig.VerifyInsecure(pubKey, ::SerializeHash(pl, SER_GETHASH, PROTOCOL_VERSION | ADDRV2_FORMAT))) {
         return state.DoS(100, false, REJECT_INVALID, "bad-protx-sig", false);
     }
     return true;
