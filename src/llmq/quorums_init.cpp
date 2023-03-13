@@ -11,14 +11,15 @@
 #include "llmq/quorums_commitment.h"
 #include "llmq/quorums_debug.h"
 #include "llmq/quorums_dkgsessionmgr.h"
-
+#include "quorums_signing.h"
+#include "quorums_signing_shares.h"
 
 namespace llmq
 {
 
 CBLSWorker* blsWorker;
 
-void InitLLMQSystem(CEvoDB& evoDb)
+void InitLLMQSystem(CEvoDB& evoDb, bool unitTests)
 {
     blsWorker = new CBLSWorker();
 
@@ -26,10 +27,20 @@ void InitLLMQSystem(CEvoDB& evoDb)
     quorumBlockProcessor.reset(new CQuorumBlockProcessor(evoDb));
     quorumDKGSessionManager.reset(new CDKGSessionManager(evoDb, *blsWorker));
     quorumManager.reset(new CQuorumManager(evoDb, *blsWorker, *quorumDKGSessionManager));
+    quorumSigSharesManager = new CSigSharesManager();
+    quorumSigningManager = new CSigningManager(unitTests);
+    quorumSigSharesManager->StartWorkerThread();
 }
 
 void DestroyLLMQSystem()
 {
+    if (quorumSigSharesManager) {
+        quorumSigSharesManager->StopWorkerThread();
+    }
+    delete quorumSigningManager;
+    quorumSigningManager = nullptr;
+    delete quorumSigSharesManager;
+    quorumSigSharesManager = nullptr;
     quorumDKGSessionManager.reset();
     quorumBlockProcessor.reset();
     quorumDKGDebugManager.reset();
