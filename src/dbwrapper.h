@@ -7,6 +7,7 @@
 
 #include "clientversion.h"
 #include "fs.h"
+#include "net.h"
 #include "serialize.h"
 #include "streams.h"
 #include "util/system.h"
@@ -58,7 +59,7 @@ public:
     /**
      * @param[in] _parent   CDBWrapper that this batch is to be submitted to
      */
-    CDBBatch() : ssKey(SER_DISK, CLIENT_VERSION), ssValue(SER_DISK, CLIENT_VERSION), size_estimate(0) { };
+    CDBBatch() : ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), ssValue(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), size_estimate(0) { };
 
     void Clear()
     {
@@ -80,7 +81,7 @@ public:
     {
         leveldb::Slice slKey(_ssKey.data(), _ssKey.size());
 
-        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        CDataStream ssValue(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssValue.reserve(DBWRAPPER_PREALLOC_VALUE_SIZE);
         ssValue << value;
         leveldb::Slice slValue(ssValue.data(), ssValue.size());
@@ -142,7 +143,7 @@ public:
 
     template<typename K> void Seek(const K& key)
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         Seek(ssKey);
@@ -229,7 +230,7 @@ public:
     template <typename K>
     bool ReadDataStream(const K& key, CDataStream& ssValue) const
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return ReadDataStream(ssKey, ssValue);
@@ -255,7 +256,7 @@ public:
     template <typename K, typename V>
     bool Read(const K& key, V& value) const
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return Read(ssKey, value);
@@ -264,7 +265,7 @@ public:
     template <typename V>
     bool Read(const CDataStream& ssKey, V& value) const
     {
-        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        CDataStream ssValue(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         if (!ReadDataStream(ssKey, ssValue)) {
             return false;
         }
@@ -287,7 +288,7 @@ public:
     template <typename K>
     bool Exists(const K& key) const
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return Exists(ssKey);
@@ -344,7 +345,7 @@ public:
     template<typename K>
     size_t EstimateSize(const K& key_begin, const K& key_end) const
     {
-        CDataStream ssKey1(SER_DISK, CLIENT_VERSION), ssKey2(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey1(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), ssKey2(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey1.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey2.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey1 << key_begin;
@@ -363,7 +364,7 @@ public:
     template<typename K>
     void CompactRange(const K& key_begin, const K& key_end) const
     {
-        CDataStream ssKey1(SER_DISK, CLIENT_VERSION), ssKey2(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey1(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), ssKey2(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey1.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey2.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey1 << key_begin;
@@ -400,7 +401,7 @@ private:
 public:
     CDBTransactionIterator(CDBTransaction& _transaction) :
             transaction(_transaction),
-            parentKey(SER_DISK, CLIENT_VERSION)
+            parentKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT)
     {
         transactionIt = transaction.writes.end();
         parentIt = std::unique_ptr<ParentIterator>(transaction.parent.NewIterator());
@@ -473,7 +474,7 @@ public:
     CDataStream GetKey()
     {
         if (!Valid()) {
-            return CDataStream(SER_DISK, CLIENT_VERSION);
+            return CDataStream(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         }
         if (curIsParent) {
             return parentIt->GetKey();
@@ -566,7 +567,7 @@ protected:
     template<typename K>
     static CDataStream KeyToDataStream(const K& key)
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return ssKey;
@@ -590,7 +591,7 @@ public:
     template <typename V>
     void Write(const CDataStream& ssKey, const V& v)
     {
-        auto valueMemoryUsage = ::GetSerializeSize(v, CLIENT_VERSION);
+        auto valueMemoryUsage = ::GetSerializeSize(v, CLIENT_VERSION | ADDRV2_FORMAT);
         if (deletes.erase(ssKey)) {
             memoryUsage -= ssKey.size();
         }
