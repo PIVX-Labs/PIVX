@@ -9,6 +9,7 @@
 
 #include "chainparamsseeds.h"
 #include "consensus/merkle.h"
+#include "consensus/params.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 
@@ -354,6 +355,8 @@ public:
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
 
+        consensus.llmqChainLocks = Consensus::LLMQ_400_60;
+
         nLLMQConnectionRetryTimeout = 60;
 
         // Tier two
@@ -497,6 +500,8 @@ public:
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
 
+        consensus.llmqChainLocks = Consensus::LLMQ_400_60;
+
         nLLMQConnectionRetryTimeout = 60;
 
         // Tier two
@@ -636,6 +641,9 @@ public:
 
         // long living quorum params
         consensus.llmqs[Consensus::LLMQ_TEST] = llmq_test;
+        
+        consensus.llmqChainLocks = Consensus::LLMQ_TEST;
+        
         nLLMQConnectionRetryTimeout = 10;
 
         // Tier two
