@@ -7,6 +7,7 @@
 
 #include "netmessagemaker.h"
 #include "sporkdb.h"
+#include "sporkid.h"
 #include "validation.h"
 
 #include <iostream>
@@ -23,6 +24,7 @@ std::vector<CSporkDef> sporkDefs = {
     MAKE_SPORK_DEF(SPORK_20_SAPLING_MAINTENANCE,            4070908800ULL), // OFF
     MAKE_SPORK_DEF(SPORK_21_LEGACY_MNS_MAX_HEIGHT,          4070908800ULL), // OFF
     MAKE_SPORK_DEF(SPORK_22_LLMQ_DKG_MAINTENANCE,           4070908800ULL), // OFF
+    MAKE_SPORK_DEF(SPORK_23_CHAINLOCKS_ENFORCEMENT,         4070908800ULL), // OFF
 };
 
 CSporkManager sporkManager;
