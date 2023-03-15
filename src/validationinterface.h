@@ -74,6 +74,7 @@ class CValidationInterface {
 public:
     virtual ~CValidationInterface() = default;
 protected:
+    virtual void AcceptedBlockHeader(const CBlockIndex *pindexNew) {}
     /**
      * Notifies listeners when the block chain tip advances.
      *
@@ -171,7 +172,7 @@ public:
     void FlushBackgroundCallbacks();
 
     size_t CallbacksPending();
-
+    void AcceptedBlockHeader(const CBlockIndex *pindexNew);
     void UpdatedBlockTip(const CBlockIndex *, const CBlockIndex *, bool fInitialDownload);
     void TransactionAddedToMempool(const CTransactionRef &ptxn);
     void TransactionRemovedFromMempool(const CTransactionRef&, MemPoolRemovalReason);
