@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://www.opensource.org/licenses/mit-license.php.
 
+#include "llmq/quorums_chainlocks.h"
 #include "masternode-sync.h"
 
 #include "llmq/quorums_blockprocessor.h"
@@ -9,6 +10,7 @@
 #include "llmq/quorums_signing.h"
 #include "llmq/quorums_signing_shares.h"
 #include "masternodeman.h"  // for mnodeman
+#include "net.h"
 #include "net_processing.h" // for Misbehaving
 #include "netmessagemaker.h"
 #include "spork.h"   // for sporkManager
@@ -78,6 +80,9 @@ bool CMasternodeSync::MessageDispatcher(CNode* pfrom, std::string& strCommand, C
     if (strCommand == NetMsgType::QSIGREC) {
         llmq::quorumSigningManager->ProcessMessage(pfrom, strCommand, vRecv, *g_connman);
         return true;
+    }
+    if (strCommand == NetMsgType::CLSIG) {
+        llmq::chainLocksHandler->ProcessMessage(pfrom, strCommand, vRecv, *g_connman);
     }
 
     if (strCommand == NetMsgType::GETMNLIST) {
