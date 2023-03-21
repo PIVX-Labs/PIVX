@@ -338,17 +338,16 @@ UniValue quorumdkgsimerror(const JSONRPCRequest& request)
 }
 
 static const CRPCCommand commands[] =
-    {
-        //  category       name                      actor (function)      okSafe argNames
-        //  -------------- ------------------------- --------------------- ------ --------
-        {"evo", "getminedcommitment", &getminedcommitment, true, {"llmq_type", "quorum_hash"}},
-        {"evo", "getquorummembers", &getquorummembers, true, {"llmq_type", "quorum_hash"}},
-        {"evo", "quorumdkgsimerror", &quorumdkgsimerror, true, {"error_type", "rate"}},
-        {"evo", "quorumdkgstatus", &quorumdkgstatus, true, {"detail_level"}},
-        {"evo", "quorum_list", &quorum_list, true, {"count"}},
-        {"evo", "quorum_info", &quorum_info, true, {"llmqType", "quorumHash", "includeSkShare"}},
-        {"evo", "quorum_sigs_cmd", &quorum_sigs_cmd, true, {"cmd", "llmqType", "id", "msgHash"}},
-};
+{ //  category       name                      actor (function)      okSafe argNames
+  //  -------------- ------------------------- --------------------- ------ --------
+    { "evo",         "getminedcommitment",     &getminedcommitment,  true,  {"llmq_type", "quorum_hash"}  },
+    { "evo",         "getquorummembers",       &getquorummembers,    true,  {"llmq_type", "quorum_hash"}  },
+    { "evo",         "quorumdkgsimerror",      &quorumdkgsimerror,   true,  {"error_type", "rate"}  },
+    { "evo",         "quorumdkgstatus",        &quorumdkgstatus,     true,  {"detail_level"}  },
+    { "evo",         "listquorums",            &listquorums,         true,  {"count"}  },
+    { "evo",         "getquoruminfo",          &getquoruminfo,       true,  {"llmqType", "quorumHash", "includeSkShare"}  },
+    { "evo",         "quorum_sigs_cmd",        &quorum_sigs_cmd,     true,  {"cmd", "llmqType", "id", "msgHash"}  },
+ };
 
 void RegisterQuorumsRPCCommands(CRPCTable& tableRPC)
 {

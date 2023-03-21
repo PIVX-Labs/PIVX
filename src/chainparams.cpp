@@ -641,9 +641,9 @@ public:
 
         // long living quorum params
         consensus.llmqs[Consensus::LLMQ_TEST] = llmq_test;
-        
+
         consensus.llmqChainLocks = Consensus::LLMQ_TEST;
-        
+
         nLLMQConnectionRetryTimeout = 10;
 
         // Tier two
