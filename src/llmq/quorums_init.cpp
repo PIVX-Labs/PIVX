@@ -11,6 +11,7 @@
 #include "llmq/quorums_commitment.h"
 #include "llmq/quorums_debug.h"
 #include "llmq/quorums_dkgsessionmgr.h"
+#include "quorums_chainlocks.h"
 #include "quorums_signing.h"
 #include "quorums_signing_shares.h"
 
@@ -19,7 +20,7 @@ namespace llmq
 
 CBLSWorker* blsWorker;
 
-void InitLLMQSystem(CEvoDB& evoDb, bool unitTests)
+void InitLLMQSystem(CEvoDB& evoDb, CScheduler* scheduler, bool unitTests)
 {
     blsWorker = new CBLSWorker();
 
@@ -32,6 +33,7 @@ void InitLLMQSystem(CEvoDB& evoDb, bool unitTests)
     quorumSigningManager = new CSigningManager(unitTests);
 
     quorumSigSharesManager->StartWorkerThread();
+    chainLocksHandler = new CChainLocksHandler(scheduler);
 }
 
 void DestroyLLMQSystem()
@@ -39,7 +41,8 @@ void DestroyLLMQSystem()
     if (quorumSigSharesManager) {
         quorumSigSharesManager->StopWorkerThread();
     }
-
+    delete chainLocksHandler;
+    chainLocksHandler = nullptr;
     delete quorumSigningManager;
     quorumSigningManager = nullptr;
     delete quorumSigSharesManager;
