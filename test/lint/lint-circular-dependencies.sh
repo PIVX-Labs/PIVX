@@ -41,6 +41,8 @@ EXPECTED_CIRCULAR_DEPENDENCIES=(
     "chain -> legacy/stakemodifier -> validation -> chain"
     "legacy/validation_zerocoin_legacy -> wallet/wallet -> validation -> legacy/validation_zerocoin_legacy"
     "llmq/quorums -> llmq/quorums_connections -> llmq/quorums"
+    "llmq/quorums_chainlocks -> net_processing -> llmq/quorums_chainlocks"
+    "llmq/quorums_chainlocks -> validation -> llmq/quorums_chainlocks"
     "llmq/quorums_dkgsession -> llmq/quorums_dkgsessionmgr -> llmq/quorums_dkgsessionhandler -> llmq/quorums_dkgsession"
     "llmq/quorums_dkgsessionhandler -> net_processing -> llmq/quorums_dkgsessionmgr -> llmq/quorums_dkgsessionhandler"
     "llmq/quorums_signing -> net_processing -> llmq/quorums_signing"
