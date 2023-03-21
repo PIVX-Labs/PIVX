@@ -64,7 +64,7 @@ const char* QSIGSHARESINV = "qsigsinv";
 const char* QGETSIGSHARES = "qgetsigs";
 const char* QBSIGSHARES = "qbsigs";
 const char* QSIGREC = "qsigrec";
-const char *CLSIG = "clsig";
+const char* CLSIG = "clsig";
 }; // namespace NetMsgType
 
 

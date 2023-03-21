@@ -349,7 +349,7 @@ static const CRPCCommand commands[] =
     { "evo",         "quorumdkgstatus",        &quorumdkgstatus,     true,  {"detail_level"}  },
     { "evo",         "listquorums",            &listquorums,         true,  {"count"}  },
     { "evo",         "getquoruminfo",          &getquoruminfo,       true,  {"llmqType", "quorumHash", "includeSkShare"}  },
-    {"evo", "quorum_sigs_cmd", &quorum_sigs_cmd, true, {"cmd", "llmqType", "id", "msgHash"}},
+    { "evo",         "quorum_sigs_cmd",        &quorum_sigs_cmd,     true,  {"cmd", "llmqType", "id", "msgHash"}  },
  };
 
 void RegisterQuorumsRPCCommands(CRPCTable& tableRPC)
