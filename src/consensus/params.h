@@ -86,7 +86,6 @@ struct NetworkUpgrade {
     Optional<uint256> hashActivationBlock;
 };
 
-
 enum LLMQIpType : uint8_t
 {
     LLMQ_UNKNOWN =0,

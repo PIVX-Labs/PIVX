@@ -89,10 +89,10 @@ void quorum_list_help()
         "quorum list ( count )\n"
         "\nArguments:\n"
         "1. count           (number, optional, default=10) Number of quorums to list.\n" +
-        HelpExampleRpc("quorum_list", "2") + HelpExampleCli("quorum_list", "2"));
+        HelpExampleRpc("listquorums", "2") + HelpExampleCli("listquorums", "2"));
 }
 
-UniValue quorum_list(const JSONRPCRequest& request)
+UniValue listquorums(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() > 1)
         quorum_list_help();
@@ -132,10 +132,10 @@ void quorum_info_help()
         "1. llmqType              (int, required) LLMQ type.\n"
         "2. \"quorumHash\"          (string, required) Block hash of quorum.\n"
         "3. includeSkShare        (boolean, optional) Include secret key share in output.\n" +
-        HelpExampleRpc("quorum_info", "2 \"xxx\", true") + HelpExampleCli("quorum_info", "2, \"xxx\",true"));
+        HelpExampleRpc("getquoruminfo", "2 \"xxx\", true") + HelpExampleCli("getquoruminfo", "2, \"xxx\",true"));
 }
 
-UniValue quorum_info(const JSONRPCRequest& request)
+UniValue getquoruminfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() > 3 || request.params.size() < 2)
         quorum_info_help();

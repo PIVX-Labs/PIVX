@@ -447,17 +447,17 @@ bool MasterNodeWizardDialog::createMN()
             votingAddr = ownerKeyId;
         }
 
-        Optional<COutPoint> collateralOut =  COutPoint(); 
+        Optional<COutPoint> collateralOut =  COutPoint();
         bool foundCandidate = false;
         if(!walletModel->getMNCollateralCandidate(*collateralOut)){
-            collateralOut= nullopt;    
+            collateralOut= nullopt;
         }else{
             //We have to lock the collateral or the system could spend it
             walletModel->lockCoin(*collateralOut);
             foundCandidate = true;
         }
         std::string error_str;
-        
+
         auto res = mnModel->createDMN(alias,
                                       collateralOut,
                                       addressLabel,
