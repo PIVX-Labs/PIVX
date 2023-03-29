@@ -62,28 +62,28 @@ public:
     bool Read(const K& key, V& value)
     {
         LOCK(cs);
-        return curDBTransaction.Read(key, value);
+        return curDBTransaction.ReadEvoDB(key, value);
     }
 
     template<typename K, typename V>
     void Write(const K& key, const V& value)
     {
         LOCK(cs);
-        curDBTransaction.Write(key, value);
+        curDBTransaction.WriteEvoDB(key, value);
     }
 
     template <typename K>
     bool Exists(const K& key)
     {
         LOCK(cs);
-        return curDBTransaction.Exists(key);
+        return curDBTransaction.ExistsEvoDB(key);
     }
 
     template <typename K>
     void Erase(const K& key)
     {
         LOCK(cs);
-        curDBTransaction.Erase(key);
+        curDBTransaction.EraseEvoDB(key);
     }
 
     CDBWrapper& GetRawDB()

@@ -59,7 +59,7 @@ public:
     /**
      * @param[in] _parent   CDBWrapper that this batch is to be submitted to
      */
-    CDBBatch() : ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), ssValue(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), size_estimate(0) { };
+    CDBBatch() : ssKey(SER_DISK, CLIENT_VERSION), ssValue(SER_DISK, CLIENT_VERSION), size_estimate(0) { };
 
     void Clear()
     {
@@ -81,7 +81,7 @@ public:
     {
         leveldb::Slice slKey(_ssKey.data(), _ssKey.size());
 
-        CDataStream ssValue(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
         ssValue.reserve(DBWRAPPER_PREALLOC_VALUE_SIZE);
         ssValue << value;
         leveldb::Slice slValue(ssValue.data(), ssValue.size());
@@ -143,7 +143,7 @@ public:
 
     template<typename K> void Seek(const K& key)
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         Seek(ssKey);
@@ -230,7 +230,7 @@ public:
     template <typename K>
     bool ReadDataStream(const K& key, CDataStream& ssValue) const
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return ReadDataStream(ssKey, ssValue);
@@ -256,7 +256,7 @@ public:
     template <typename K, typename V>
     bool Read(const K& key, V& value) const
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return Read(ssKey, value);
@@ -264,6 +264,30 @@ public:
 
     template <typename V>
     bool Read(const CDataStream& ssKey, V& value) const
+    {
+        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        if (!ReadDataStream(ssKey, ssValue)) {
+            return false;
+        }
+        try {
+            ssValue >> value;
+        } catch (const std::exception&) {
+            return false;
+        }
+        return true;
+    }
+
+    template <typename K, typename V>
+    bool ReadEvoDB(const K& key, V& value) const
+    {
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
+        ssKey << key;
+        return Read(ssKey, value);
+    }
+
+    template <typename V>
+    bool ReadEvoDB(const CDataStream& ssKey, V& value) const
     {
         CDataStream ssValue(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         if (!ReadDataStream(ssKey, ssValue)) {
@@ -288,7 +312,7 @@ public:
     template <typename K>
     bool Exists(const K& key) const
     {
-        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
         return Exists(ssKey);
@@ -307,6 +331,15 @@ public:
             dbwrapper_private::HandleError(status);
         }
         return true;
+    }
+
+    template <typename K>
+    bool ExistsEvoDB(const K& key) const
+    {
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
+        ssKey << key;
+        return Exists(ssKey);
     }
 
     template <typename K>
@@ -345,7 +378,7 @@ public:
     template<typename K>
     size_t EstimateSize(const K& key_begin, const K& key_end) const
     {
-        CDataStream ssKey1(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), ssKey2(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssKey1(SER_DISK, CLIENT_VERSION), ssKey2(SER_DISK, CLIENT_VERSION);
         ssKey1.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey2.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey1 << key_begin;
@@ -364,7 +397,7 @@ public:
     template<typename K>
     void CompactRange(const K& key_begin, const K& key_end) const
     {
-        CDataStream ssKey1(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT), ssKey2(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+        CDataStream ssKey1(SER_DISK, CLIENT_VERSION), ssKey2(SER_DISK, CLIENT_VERSION);
         ssKey1.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey2.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey1 << key_begin;
@@ -401,7 +434,7 @@ private:
 public:
     CDBTransactionIterator(CDBTransaction& _transaction) :
             transaction(_transaction),
-            parentKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT)
+            parentKey(SER_DISK, CLIENT_VERSION)
     {
         transactionIt = transaction.writes.end();
         parentIt = std::unique_ptr<ParentIterator>(transaction.parent.NewIterator());
@@ -474,7 +507,7 @@ public:
     CDataStream GetKey()
     {
         if (!Valid()) {
-            return CDataStream(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+            return CDataStream(SER_DISK, CLIENT_VERSION);
         }
         if (curIsParent) {
             return parentIt->GetKey();
@@ -567,6 +600,15 @@ protected:
     template<typename K>
     static CDataStream KeyToDataStream(const K& key)
     {
+        CDataStream ssKey(SER_DISK, CLIENT_VERSION);
+        ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
+        ssKey << key;
+        return ssKey;
+    }
+
+    template<typename K>
+    static CDataStream KeyToDataStreamEvoDB(const K& key)
+    {
         CDataStream ssKey(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
@@ -591,7 +633,7 @@ public:
     template <typename V>
     void Write(const CDataStream& ssKey, const V& v)
     {
-        auto valueMemoryUsage = ::GetSerializeSize(v, CLIENT_VERSION | ADDRV2_FORMAT);
+        auto valueMemoryUsage = ::GetSerializeSize(v, CLIENT_VERSION);
         if (deletes.erase(ssKey)) {
             memoryUsage -= ssKey.size();
         }
@@ -702,6 +744,103 @@ public:
             return 0;
         }
         return (size_t)memoryUsage;
+    }
+
+    template <typename K, typename V>
+    void WriteEvoDB(const K& key, const V& v)
+    {
+        WriteEvoDB(KeyToDataStreamEvoDB(key), v);
+    }
+
+    template <typename V>
+    void WriteEvoDB(const CDataStream& ssKey, const V& v)
+    {
+        auto valueMemoryUsage = ::GetSerializeSize(v, CLIENT_VERSION | ADDRV2_FORMAT);
+        if (deletes.erase(ssKey)) {
+            memoryUsage -= ssKey.size();
+        }
+        auto it = writes.emplace(ssKey, nullptr).first;
+        if (it->second) {
+            memoryUsage -= ssKey.size() + it->second->memoryUsage;
+        }
+        it->second = std::make_unique<ValueHolderImpl<V>>(v, valueMemoryUsage);
+
+        memoryUsage += ssKey.size() + valueMemoryUsage;
+    }
+
+    template <typename K, typename V>
+    bool ReadEvoDB(const K& key, V& value)
+    {
+        return ReadEvoDB(KeyToDataStreamEvoDB(key), value);
+    }
+
+    template <typename V>
+    bool ReadEvoDB(const CDataStream& ssKey, V& value)
+    {
+        if (deletes.count(ssKey)) {
+            return false;
+        }
+
+        auto it = writes.find(ssKey);
+        if (it != writes.end()) {
+            auto *impl = dynamic_cast<ValueHolderImpl<V> *>(it->second.get());
+            if (!impl) {
+                throw std::runtime_error("Read called with V != previously written type");
+            }
+            value = impl->value;
+            return true;
+        }
+
+        return parent.ReadEvoDB(ssKey, value);
+    }
+
+
+    template <typename K>
+    bool ExistsEvoDB(const K& key)
+    {
+        return ExistsEvoDB(KeyToDataStreamEvoDB(key));
+    }
+
+    bool ExistsEvoDB(const CDataStream& ssKey)
+    {
+        if (deletes.count(ssKey)) {
+            return false;
+        }
+
+        if (writes.count(ssKey)) {
+            return true;
+        }
+
+        return parent.ExistsEvoDB(ssKey);
+    }
+
+    template <typename K>
+    void EraseEvoDB(const K& key)
+    {
+        return EraseEvoDB(KeyToDataStreamEvoDB(key));
+    }
+
+    void EraseEvoDB(const CDataStream& ssKey)
+    {
+        auto it = writes.find(ssKey);
+        if (it != writes.end()) {
+            memoryUsage -= ssKey.size() + it->second->memoryUsage;
+            writes.erase(it);
+        }
+        if (deletes.emplace(ssKey).second) {
+            memoryUsage += ssKey.size();
+        }
+    }
+
+    void CommitEvoDB()
+    {
+        for (const auto &k : deletes) {
+            commitTarget.EraseEvoDB(k);
+        }
+        for (auto &p : writes) {
+            p.second->WriteEvoDB(p.first, commitTarget);
+        }
+        Clear();
     }
 
     CDBTransactionIterator<CDBTransaction>* NewIterator()
